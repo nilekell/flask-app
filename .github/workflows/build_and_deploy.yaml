@@ -20,7 +20,7 @@ name: Setup, Build, Deploy and Publish
 on:
   push:
     branches:
-      - 'main'
+      - 'master'
   release:
     types: [created]
 
