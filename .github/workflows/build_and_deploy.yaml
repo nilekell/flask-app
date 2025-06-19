@@ -25,7 +25,8 @@ on:
     types: [created]
 
 jobs:
-  setup-build-deploy-publish:
+   setup-build-deploy-publish:
+    environment: development
     name: Setup, Build, Deploy and Publish
     runs-on: ubuntu-latest
     env:
@@ -34,7 +35,7 @@ jobs:
       INSTANCE_NAME: ${{ secrets.INSTANCE_NAME }}
       IMAGE_NAME: docker-image
       CONTAINER_NAME: docker-container
-      GITHUB_REPO_URL: ${{ secrets.GITHUB_REPO_URL }}
+      REPO_URL: ${{ secrets.REPO_URL }}
 
     # Add "id-token" with the intended permissions.
     permissions:
@@ -43,17 +44,17 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       # Config authentication to Google Cloud
       - name: Config authentication for GCP
-        uses: google-github-actions/auth@v0
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_TF_SA_CREDS_BASE64 }}
 
       # Set up Cloud SDK
       - name: Set up GCP SDK
-        uses: google-github-actions/setup-gcloud@v0
+        uses: google-github-actions/setup-gcloud@v2
 
       # Fetch the repo's content, build the Docker image and
       # run a container which is exposed to a pre-defined port
@@ -62,7 +63,7 @@ jobs:
           gcloud --quiet compute ssh ${{ env.INSTANCE_NAME }} \
           --project=${{ env.PROJECT_ID }} \
           --zone=${{ env.GCP_ZONE }} --command \
-            'git clone ${{ env.GITHUB_REPO_URL }} working-dir \
+            'git clone ${{ env.REPO_URL }} working-dir \
             && cd "$_" \
             && sudo docker image build -t ${{ env.IMAGE_NAME }}:latest . \
             && sudo docker container run -d -n ${{ env.CONTAINER_NAME }} -p 5000:5000 ${{ env.IMAGE_NAME }}:latest' 
