@@ -63,7 +63,8 @@ jobs:
           gcloud --quiet compute ssh ${{ env.INSTANCE_NAME }} \
           --project=${{ env.PROJECT_ID }} \
           --zone=${{ env.GCP_ZONE }} --command \
-            'git clone ${{ env.REPO_URL }} working-dir \
-            && cd "$_" \
+            'rm -rf working-dir \
+            && git clone ${{ env.REPO_URL }} working-dir \
+            && cd working-dir \
             && sudo docker image build -t ${{ env.IMAGE_NAME }}:latest . \
             && sudo docker container run --detach --name ${{ env.CONTAINER_NAME }} --publish 5000:5000 ${{ env.IMAGE_NAME }}:latest' 
